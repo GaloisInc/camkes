@@ -17,14 +17,13 @@
 
 int run(void) {
 
-    char *buffer_str = (char*)buffer;
+    char *buffer_str = (char*)network_buffer;
     while(true) {
         /* Wait for event */
-        ev_wait();
+        ipframe_ev_rx_wait();
         printf("Server: Got string: %s\n", buffer_str);
-				printf("Server: Buffer[0]=%u\n", buffer_str[0]);
 
-        int len = strnlen(buffer_str, REVERSE_STRING_MAX_LEN);
+        int len = strnlen(buffer_str, IP_FRAME_MAX_LEN);
         for (int i = 0; i < len / 2; ++i) {
             int swap_idx = len - i - 1;
             char tmp = buffer_str[i];
@@ -33,7 +32,7 @@ int run(void) {
         }
 
         /* Signal to client that we are finished */
-        ev1_emit();
+        ipframe_ev_tx_emit();
     }
 
     return 0;

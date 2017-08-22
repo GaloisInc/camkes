@@ -17,11 +17,10 @@ include ${RUMPRUN_BASE_DIR}/platform/sel4/rumprunlibs.mk
 
 CAMKES_FLAGS += --cpp-flag=-I${RUMPRUN_BASE_DIR}/platform/sel4/camkes/ 
 
-# define path to the cargo project
-RUST_SOURCE_DIR := ${CURRENT_DIR}/rustest/
+RUST_SOURCE_ETHERNET := ${CURRENT_DIR}ethdriver
 
-rumprun_ether_rumpbin := hello
+rumprun_ether_rumpbin := rust_ethdriver
 
-hello: $(RUST_SOURCE_DIR)/src/main.rs
-	cd $(RUST_SOURCE_DIR) &&	cargo build --target=x86_64-rumprun-netbsd --verbose
-	cp $(RUST_SOURCE_DIR)/target/x86_64-rumprun-netbsd/debug/rustest $(BUILD_DIR)/$@
+rust_ethdriver: $(RUST_SOURCE_ETHERNET)/src/main.rs
+	cd $(RUST_SOURCE_ETHERNET) &&	cargo build --target=x86_64-rumprun-netbsd --verbose
+	cp $(RUST_SOURCE_ETHERNET)/target/x86_64-rumprun-netbsd/debug/ethdriver $(BUILD_DIR)/$@

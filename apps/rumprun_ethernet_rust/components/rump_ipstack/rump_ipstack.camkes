@@ -11,8 +11,17 @@
  */
 
 #include <rumprun_camkes.h>
+#include <buffer.h>
 import <rumprun.camkes>;
 
-component rumprun_rust {
+component rumprun_ipstack {
     RUMPRUN_COMPONENT_DEFINITION()
+    dataport Buf(ETHERNET_FRAME_BUFSIZE) eth_buffer; // eth frame buffer
+    emits EthDataEvt eth_ev_tx; // data to send
+    consumes EthDataEvt eth_ev_rx; // received data
+
+    dataport Buf(IP_FRAME_BUFSIZE) network_buffer; // ip frame buffer
+    emits NetworkEvt ipframe_ev_rx; // received data
+    consumes NetworkEvt ipframe_ev_tx; // data to send
+
 }

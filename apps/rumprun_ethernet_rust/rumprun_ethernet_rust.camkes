@@ -12,10 +12,12 @@
 
 #include <rumprun_camkes.h>
 import <rumprun.camkes>;
-import "components/hellorust/hellorust.camkes";
-import "components/reverse_string/server.camkes";
+import "components/rump_ipstack/rump_ipstack.camkes";
 import "components/rump_ether/rump_ether.camkes";
+import "components/reverse_string/server.camkes";
 
+
+// Physical hardware address and irq for ethernet device
 component EthDevice {
     hardware;
     emits IRQ irq;
@@ -24,11 +26,14 @@ component EthDevice {
 
 assembly {
  composition {
+     // rumpkernel + sel4 connecting layer
      component rumprun_platform_layer rrpl;
 
-     component rumprun_rust hello;
-     RUMPRUN_META_CONNECTION(hello, rrpl)
+     // ipstack component definition
+     component rumprun_ipstack rump_ipstack;
+     RUMPRUN_META_CONNECTION(rump_ipstack, rrpl)
 
+     // ethernet driver definition
      component rumprun_ether rump_ether;
      RUMPRUN_META_CONNECTION(rump_ether, rrpl)
 
@@ -36,29 +41,40 @@ assembly {
      component EthDevice eth;
      component Server server;
 
+     // rumpkernel platform layer to PCI config
      connection seL4RPCCall serial_pci_config(from pci_config.putchar, to rrpl.putchar);
 
-     connection seL4SharedData conn(from rump_ether.camkes_buffer, to server.buffer);
-     connection seL4Notification simpleEvent1(from rump_ether.camkes_ev, to server.ev);
-     connection seL4Notification simpleEvent2(from server.ev1, to rump_ether.camkes_ev1);
+     // eth driver to ipstack connections
+     connection seL4SharedData ethConn(from rump_ether.eth_buffer, to rump_ipstack.eth_buffer);
+     connection seL4Notification ethEventRx(from rump_ether.eth_ev_rx, to rump_ipstack.eth_ev_rx);
+     connection seL4Notification ethEventTx(from rump_ipstack.eth_ev_tx, to rump_ether.eth_ev_tx);
 
+    // ipstack to app server
+     connection seL4SharedData ipConn(from rump_ipstack.network_buffer, to server.network_buffer);
+     connection seL4Notification ipframeEventRx(from rump_ipstack.ipframe_ev_rx, to server.ipframe_ev_rx);
+     connection seL4Notification ipframeEventTx(from server.ipframe_ev_tx, to rump_ipstack.ipframe_ev_tx);
+
+     // eth driver PCI config
      connection seL4RPCCall pciconfig0(from rump_ether.pci_config, to pci_config.pci_config);
      connection seL4HardwareInterrupt eth_irq(from eth.irq, to rump_ether.eth_irq);
 
  }
 
  configuration {
-    hello.rump_config = {"cmdline": "hello Rust World!"};
-    RUMPRUN_COMPONENT_CONFIGURATION(hello, 1)
+    // rumpkernel ipstack config
+    rump_ipstack.rump_config = {"cmdline": "hello IP stack is up!",
+                                "interfaces_to_expose": ["eth_buffer", "eth_ev_rx", "eth_ev_tx", "network_buffer", "ipframe_ev_rx", "ipframe_ev_tx"] };
+    RUMPRUN_COMPONENT_CONFIGURATION(rump_ipstack, 0)
 
+    // rumpkernel ethernet device config
     rump_ether.rump_config = { "rump_net": 1, 
                                 "rumprunbake_config": "sel4_ethernet", 
                                 "cmdline": "echo 6666",
                                 "pci_config_interface" : "pci_config",
                                 "eth_irq_interface" : "eth_irq",
                                 "eth_irq_number" : 11,
-                                "interfaces_to_expose": ["camkes_buffer", "camkes_ev", "camkes_ev1"] };
-    RUMPRUN_COMPONENT_CONFIGURATION(rump_ether, 0)
+                                "interfaces_to_expose": ["eth_buffer", "eth_ev_rx", "eth_ev_tx"] };
+    RUMPRUN_COMPONENT_CONFIGURATION(rump_ether, 1)
 
     rump_ether.untyped_mmios = ["0xfebc0000:17", "0xf7f39000:12", "0xf7f00000:17"];
     eth.irq_irq_type = "pci";

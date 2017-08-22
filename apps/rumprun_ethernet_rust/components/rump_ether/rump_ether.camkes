@@ -12,15 +12,14 @@
 
 #include <rumprun_camkes.h>
 #include <buffer.h>
-
 import <rumprun.camkes>;
 
 component rumprun_ether {
     RUMPRUN_COMPONENT_DEFINITION()
     uses PCIConfig pci_config;
     consumes IRQ eth_irq;
-    dataport Buf(REVERSE_STRING_BUFSIZE) camkes_buffer;
-    emits SomethingHappenedEvent camkes_ev;
-    consumes SomethingHappenedEvent camkes_ev1;
+    dataport Buf(ETHERNET_FRAME_BUFSIZE) eth_buffer; // eth frame buffer
+    emits EthDataEvt eth_ev_rx; // received data
+    consumes EthDataEvt eth_ev_tx; // data to send
 
 }

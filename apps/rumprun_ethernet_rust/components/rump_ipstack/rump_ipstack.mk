@@ -17,11 +17,10 @@ include ${RUMPRUN_BASE_DIR}/platform/sel4/rumprunlibs.mk
 
 CAMKES_FLAGS += --cpp-flag=-I${RUMPRUN_BASE_DIR}/platform/sel4/camkes/ 
 
-# define path to the cargo project
-RUST_SOURCE_DIR := ${CURRENT_DIR}/rustest/
+RUST_SOURCE_IPSTACK := ${CURRENT_DIR}ipstack
 
-rumprun_rust_rumpbin := hellorust
+rumprun_ipstack_rumpbin := rust_ipstack
 
-hellorust: $(RUST_SOURCE_DIR)/src/main.rs
-	cd $(RUST_SOURCE_DIR) &&	cargo build --target=x86_64-rumprun-netbsd --verbose
-	cp $(RUST_SOURCE_DIR)/target/x86_64-rumprun-netbsd/debug/rustest $(BUILD_DIR)/$@
+rust_ipstack: $(RUST_SOURCE_IPSTACK)/src/main.rs
+	cd $(RUST_SOURCE_IPSTACK) &&	cargo build --target=x86_64-rumprun-netbsd --verbose
+	cp $(RUST_SOURCE_IPSTACK)/target/x86_64-rumprun-netbsd/debug/ipstack $(BUILD_DIR)/$@
