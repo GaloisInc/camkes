@@ -1,5 +1,8 @@
 # ignore temporary files
 *.*~
 
-# ignore rust target
-apps/rumprun_rust/components/hellorust/rustest/target/
+# ignore rust targets
+*/*/*/*/*/target/
+
+# ignore Cargo.lock files
+*/*/*/*/*/Cargo.lock
