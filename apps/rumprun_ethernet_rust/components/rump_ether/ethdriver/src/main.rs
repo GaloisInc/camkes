@@ -81,7 +81,7 @@ fn main() {
         loop {
             if let Ok(res) = socket.recv_from(&mut buf) {
                 let (len, src) = res;
-                println!("Received {} data from {}: {:?}", len, src, &buf[0..len]);
+                // println!("Received {} data from {}: {:?}", len, src, &buf[0..len]);
 
                 copy_data_from(&buf, len);
 
@@ -110,7 +110,8 @@ fn main() {
             if poll_tx_data() {
                 let msg_len = copy_data_to(&mut buf);
 
-                println!("TX sending data: {:?}", &buf[1..msg_len]);
+                //println!("TX sending data: {:?}", &buf[1..msg_len]);
+                
                 // send data
                 let len = socket
                     .send_to(&buf[1..msg_len], "192.168.179.1:6665")
