@@ -17,19 +17,23 @@
 
 int run(void) {
 
-    char *buffer_str = (char*)network_buffer;
+    char *msg_len =  &network_buffer[0];
+    char *buffer_str = &network_buffer[1];
     while(true) {
         /* Wait for event */
         ipframe_ev_rx_wait();
         printf("Server: Got string: %s\n", buffer_str);
 
         int len = strnlen(buffer_str, IP_FRAME_MAX_LEN);
+        msg_len = (char)len;
         for (int i = 0; i < len / 2; ++i) {
             int swap_idx = len - i - 1;
             char tmp = buffer_str[i];
             buffer_str[i] = buffer_str[swap_idx];
             buffer_str[swap_idx] = tmp;
         }
+
+        printf("Server: Reversed string: %s\n", buffer_str);
 
         /* Signal to client that we are finished */
         ipframe_ev_tx_emit();

@@ -62,8 +62,9 @@ assembly {
 
  configuration {
     // rumpkernel ipstack config
-    rump_ipstack.rump_config = {"cmdline": "hello IP stack is up!",
+    rump_ipstack.rump_config = {"cmdline": "hello world",
                                 "interfaces_to_expose": ["eth_buffer", "eth_ev_rx", "eth_ev_tx", "network_buffer", "ipframe_ev_rx", "ipframe_ev_tx"] };
+        //"interfaces_to_expose": ["eth_buffer", "eth_ev_rx"] };
     RUMPRUN_COMPONENT_CONFIGURATION(rump_ipstack, 0)
 
     // rumpkernel ethernet device config

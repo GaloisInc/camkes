@@ -58,12 +58,12 @@ fn copy_data_to(buf: &mut Vec<u8>) -> usize {
 }
 
 
-// UDP Socket
 use std::net::UdpSocket;
-use std::thread;
+use std::{thread, time};
 
 // Note: sleep suspends whole Rumpkernel component, not cool...
 fn main() {
+	thread::sleep(time::Duration::from_millis(1000));
     println!("Spwaning thread RX");
     // reads data from the socket
     let trx = thread::spawn(move || {
@@ -81,12 +81,13 @@ fn main() {
         loop {
             if let Ok(res) = socket.recv_from(&mut buf) {
                 let (len, src) = res;
-                // println!("Received {} data from {}: {:?}", len, src, &buf[0..len]);
+                println!("Received {} data from {}: {:?}", len, src, &buf[0..len]);
 
                 copy_data_from(&buf, len);
 
                 emit_rx_data();
             }
+            thread::sleep(time::Duration::from_millis(1));
             thread::yield_now();
         }
     });
@@ -109,8 +110,7 @@ fn main() {
         loop {
             if poll_tx_data() {
                 let msg_len = copy_data_to(&mut buf);
-
-                //println!("TX sending data: {:?}", &buf[1..msg_len]);
+                println!("TX sending data: {:?}", &buf[1..msg_len]);
                 
                 // send data
                 let len = socket
@@ -118,6 +118,7 @@ fn main() {
                     .expect("Couldn't send data");
                 println!("Sent {} bytes", len);
             }
+            thread::sleep(time::Duration::from_millis(1));
             thread::yield_now();
         }
     });
