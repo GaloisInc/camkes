@@ -124,7 +124,7 @@ use std::{thread, time};
 
 fn main() {
     println!("Hello ipstack!");
-    thread::sleep(time::Duration::from_millis(5000));
+    //thread::sleep(time::Duration::from_millis(5000));
     
     println!("Spwaning thread eth_RX: wait for rx data from ethdriver ");
     let t_eth_rx = thread::spawn(move || {
@@ -137,13 +137,13 @@ fn main() {
             	
                 let msg_len = eth_copy_data_to(&mut buf);
                 
-                println!("got eth_poll_rx_data, len={}, buffer = {:?}",msg_len, &buf[0..msg_len]);
+                println!("got eth_poll_rx_data, len={}, buffer = {:?}",msg_len, &buf[0..msg_len+1]);
 
                 // just pass through
                 // TODO: fancy networking magic
 
                 // copy data to network_buffer
-                ip_copy_data_from(&buf, msg_len);
+                ip_copy_data_from(&buf[1..msg_len+1], msg_len);
 
                 // notify the app
                 ip_emit_rx_data();
@@ -163,13 +163,13 @@ fn main() {
             if ip_poll_tx_data() {
                 let msg_len = ip_copy_data_to(&mut buf);
                 
-                println!("got eth_poll_rx_data, len={}, buffer = {:?}",msg_len, &buf[0..msg_len]);
+                println!("got eth_poll_rx_data, len={}, buffer = {:?}",msg_len, &buf[0..msg_len+1]);
 
                 // just pass through
                 // TODO: fancy networking magic
 
                 // copy data to eth_buffer
-                eth_copy_data_from(&buf, msg_len);
+                eth_copy_data_from(&buf[1..msg_len+1], msg_len);
 
                 // notify the eth_driver to send data
                 eth_emit_tx_data();

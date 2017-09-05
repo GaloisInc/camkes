@@ -53,7 +53,7 @@ fn copy_data_to(buf: &mut Vec<u8>) -> usize {
         for idx in 1..len + 1 {
             buf[idx] = *(*eth_buffer).offset(idx as isize);
         }
-        len + 1
+        len
     }
 }
 
@@ -63,7 +63,7 @@ use std::{thread, time};
 
 // Note: sleep suspends whole Rumpkernel component, not cool...
 fn main() {
-	thread::sleep(time::Duration::from_millis(1000));
+	//thread::sleep(time::Duration::from_millis(1000));
     println!("Spwaning thread RX");
     // reads data from the socket
     let trx = thread::spawn(move || {
@@ -114,7 +114,7 @@ fn main() {
                 
                 // send data
                 let len = socket
-                    .send_to(&buf[1..msg_len], "192.168.179.1:6665")
+                    .send_to(&buf[1..msg_len+1], "192.168.179.1:6665")
                     .expect("Couldn't send data");
                 println!("Sent {} bytes", len);
             }
