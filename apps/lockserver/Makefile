@@ -14,8 +14,10 @@
 TARGETS := $(notdir ${SOURCE_DIR}).cdl
 ADL := lockserver.camkes
 
-Client_CFILES := src/client.c
+#Client_CFILES := src/client.c
+Client_RUST = ${SOURCE_DIR}/rustclient
 
-Server_CFILES := src/server.c
+#Server_CFILES := src/server.c
+Server_RUST = ${SOURCE_DIR}/rustserver
 
 include ${PWD}/tools/camkes/camkes.mk
